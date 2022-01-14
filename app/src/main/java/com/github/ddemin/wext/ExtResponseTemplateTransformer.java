@@ -363,9 +363,11 @@ public class ExtResponseTemplateTransformer extends ResponseDefinitionTransforme
             FileSource files,
             Parameters parametersToMerge
     ) {
-        final Parameters newParsedParameters
-                = uncheckedApplyTemplate(request, responseDefinition, files, newRawParameters);
-        parametersToMerge.putAll(newParsedParameters);
+        if (newRawParameters != null) {
+            final Parameters newParsedParameters
+                    = uncheckedApplyTemplate(request, responseDefinition, files, newRawParameters);
+            parametersToMerge.putAll(newParsedParameters);
+        }
     }
 
 }

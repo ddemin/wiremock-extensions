@@ -24,13 +24,13 @@ class ExWiremockUtilsTest {
     public static final int DELAY_95 = 40000;
     public static final int MAX = 50000;
 
-    @Test void testDelayGenerator() {
+    @Test void testDelayGeneratorWithZeroError() {
         final ResponseRule delayRule
                 = new ResponseRule(DELAY_MIN, DELAY_50, DELAY_90, DELAY_95, MAX, new Parameters());
         final double allowedError = 0.1;
 
         List<Long> delays = new ArrayList<>();
-        for (int i = 0; i < 10_000_000; i++) {
+        for (int i = 0; i < 1_000_000; i++) {
             delays.add(ExWiremockUtils.getStatisticDelayForRule(delayRule));
         }
 
