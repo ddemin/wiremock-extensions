@@ -5,7 +5,7 @@ import org.apache.commons.lang3.RandomUtils;
 
 public class ExWiremockUtils {
 
-    public static long getStatisticDelayForRule(final ResponseRule nextRule) {
+    public static long chooseDelayForRule(final ResponseRule nextRule) {
         final int rnd100 = RandomUtils.nextInt(1, 101);
         if (rnd100 > 95) {
             return calcRndValue(rnd100, 95, 100, nextRule.getDelay95(), nextRule.getDelayMax());

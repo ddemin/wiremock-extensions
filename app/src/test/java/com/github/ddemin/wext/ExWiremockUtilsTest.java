@@ -31,7 +31,7 @@ class ExWiremockUtilsTest {
 
         List<Long> delays = new ArrayList<>();
         for (int i = 0; i < 1_000_000; i++) {
-            delays.add(ExWiremockUtils.getStatisticDelayForRule(delayRule));
+            delays.add(ExWiremockUtils.chooseDelayForRule(delayRule));
         }
 
         Collections.sort(delays);

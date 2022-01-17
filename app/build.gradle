@@ -7,8 +7,8 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
-    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
 }
 
 repositories {
@@ -17,16 +17,16 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
+
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+
     // Use JUnit Jupiter for testing.
+    testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
 
-    implementation 'com.github.tomakehurst:wiremock:2.27.2'
-
-}
-
-application {
-    // Define the main class for the application.
-    mainClass = 'com.github.ddemin.wext.App'
 }
 
 tasks.named('test') {

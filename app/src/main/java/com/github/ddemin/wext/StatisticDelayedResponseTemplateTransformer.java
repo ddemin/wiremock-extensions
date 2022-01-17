@@ -3,45 +3,28 @@ package com.github.ddemin.wext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ddemin.wext.model.ResponseRule;
 import com.github.ddemin.wext.util.ExWiremockUtils;
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class StatisticDelayedResponseTemplateTransformer extends ExtResponseTemplateTransformer {
+public class StatisticDelayedResponseTemplateTransformer extends AbstractExtTemplateTransformer {
 
     public static final String NAME = "delayed-response-template";
 
-    public StatisticDelayedResponseTemplateTransformer(boolean global) {
-        super(global);
-    }
+    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final static Map<ResponseDefinition, ResponseRule> STORAGE_FOR_RULES = new ConcurrentHashMap<>();
 
-    public StatisticDelayedResponseTemplateTransformer(boolean global, String helperName, Helper helper) {
-        super(global, helperName, helper);
-    }
-
-    public StatisticDelayedResponseTemplateTransformer(boolean global, Map<String, Helper> helpers) {
-        super(global, helpers);
-    }
-
-    public StatisticDelayedResponseTemplateTransformer(
-            boolean global,
-            Handlebars handlebars,
-            Map<String, Helper> helpers,
-            Long maxCacheEntries,
-            Set<String> permittedSystemKeys
-    ) {
-        super(global, handlebars, helpers, maxCacheEntries, permittedSystemKeys);
+    public StatisticDelayedResponseTemplateTransformer() {
+        super(false);
     }
 
     @Override
     public String getName() {
-        return NAME;
+        return StatisticDelayedResponseTemplateTransformer.NAME;
     }
 
     @Override
@@ -49,18 +32,23 @@ public class StatisticDelayedResponseTemplateTransformer extends ExtResponseTemp
             Request request, ResponseDefinition responseDefinition, FileSource files, Parameters origParameters
     ) {
         final Parameters parsedParameters = uncheckedApplyTemplate(request, responseDefinition, files, origParameters);
-        // TODO Cache somehow
-        final ResponseRule nextRule
-                = new ObjectMapper().convertValue(parsedParameters.get("dynamic-delay"), ResponseRule.class);
+        final ResponseRule rule = getAndCacheRule(responseDefinition, parsedParameters.get("dynamic-delay"));
 
         try {
-            final long delay = ExWiremockUtils.getStatisticDelayForRule(nextRule);
+            final long delay = ExWiremockUtils.chooseDelayForRule(rule);
             Thread.sleep(delay);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
 
-        return super.transform(request, responseDefinition, files, parsedParameters);
+        return responseDefinition;
+    }
+
+    private ResponseRule getAndCacheRule(ResponseDefinition responseDefinition, Object rawRule) {
+        return STORAGE_FOR_RULES.computeIfAbsent(
+                responseDefinition,
+                k -> OBJECT_MAPPER.convertValue(rawRule, ResponseRule.class)
+        );
     }
 
 }
