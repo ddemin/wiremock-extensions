@@ -4,8 +4,8 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 
 public class ResponseStatement extends ResponseRule {
 
-    private int ruleNo;
-    private long startedTimestamp;
+    private final int ruleNo;
+    private final long startedTimestamp;
 
     public static ResponseStatement buildDefault() {
         return new ResponseStatement();
@@ -27,20 +27,8 @@ public class ResponseStatement extends ResponseRule {
         return startedTimestamp;
     }
 
-    public void setStartedTimestamp(long startedTimestamp) {
-        this.startedTimestamp = startedTimestamp;
-    }
-
-    public boolean isDefault() {
-        return this.ruleNo == -1;
-    }
-
     public int getRuleNo() {
         return ruleNo;
-    }
-
-    public void setRuleNo(int ruleNo) {
-        this.ruleNo = ruleNo;
     }
 
 }

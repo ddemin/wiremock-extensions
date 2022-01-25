@@ -17,9 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AsyncStateResponseTemplateTransformer extends AbstractExtTemplateTransformer {
 
     public static final String NAME = "async-state-response-template";
-    private final static Map<ResponseDefinition, Map<String, ResponseStatement>> STORAGE_FOR_STATEMENTS = new ConcurrentHashMap<>();
-    private final static Map<ResponseDefinition, List<ResponseRule>> STORAGE_FOR_RULES = new ConcurrentHashMap<>();
-    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static final Map<ResponseDefinition, Map<String, ResponseStatement>> STORAGE_FOR_STATEMENTS = new ConcurrentHashMap<>();
+    private static final Map<ResponseDefinition, List<ResponseRule>> STORAGE_FOR_RULES = new ConcurrentHashMap<>();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static final String KEY_FIELD = "dynamic-key";
+    private static final String STATEMENTS_FIELD = "dynamic-statements";
 
     public AsyncStateResponseTemplateTransformer() {
         super(false);
@@ -36,9 +40,9 @@ public class AsyncStateResponseTemplateTransformer extends AbstractExtTemplateTr
     ) {
         final Parameters parsedParameters = uncheckedApplyTemplate(request, responseDefinition, files, origParameters);
 
-        final String key = parsedParameters.getString("dynamic-key");
+        final String key = parsedParameters.getString(KEY_FIELD);
         if (key != null) {
-            final List rules = parsedParameters.getList("dynamic-statements");
+            final List rules = parsedParameters.getList(STATEMENTS_FIELD);
             final Map<String, ResponseStatement> statementByKey = STORAGE_FOR_STATEMENTS.computeIfAbsent(
                     responseDefinition,
                     k -> new ConcurrentHashMap<>()
@@ -50,6 +54,7 @@ public class AsyncStateResponseTemplateTransformer extends AbstractExtTemplateTr
 
             final int prevRuleNo = prevStatement.getRuleNo();
             final int nextRuleNo = prevRuleNo + 1;
+
             if (nextRuleNo < rules.size()) {
                 final List<ResponseRule> rulesList = getAndCacheRules(responseDefinition, rules);
                 final ResponseRule nextRule = rulesList.get(nextRuleNo);

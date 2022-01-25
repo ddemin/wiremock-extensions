@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 public abstract class AbstractExtTemplateTransformer extends ResponseTemplateTransformer implements StubLifecycleListener {
@@ -56,10 +55,6 @@ public abstract class AbstractExtTemplateTransformer extends ResponseTemplateTra
 
     public AbstractExtTemplateTransformer(boolean global) {
         this(global, Collections.emptyMap());
-    }
-
-    public AbstractExtTemplateTransformer(boolean global, String helperName, Helper helper) {
-        this(global, ImmutableMap.of(helperName, helper));
     }
 
     public AbstractExtTemplateTransformer(boolean global, Map<String, Helper> helpers) {
@@ -87,7 +82,6 @@ public abstract class AbstractExtTemplateTransformer extends ResponseTemplateTra
 
         this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
 
-        //Add all available wiremock helpers
         for (WireMockHelpers helper: WireMockHelpers.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
         }
@@ -105,7 +99,6 @@ public abstract class AbstractExtTemplateTransformer extends ResponseTemplateTra
         }
         cache = cacheBuilder.build();
     }
-
 
     @Override
     public void beforeStubCreated(StubMapping stub) {}
@@ -184,12 +177,7 @@ public abstract class AbstractExtTemplateTransformer extends ResponseTemplateTra
         }
 
         try {
-            return cache.get(key, new Callable<HandlebarsOptimizedTemplate>() {
-                @Override
-                public HandlebarsOptimizedTemplate call() {
-                    return new HandlebarsOptimizedTemplate(handlebars, content);
-                }
-            });
+            return cache.get(key, () -> new HandlebarsOptimizedTemplate(handlebars, content));
         } catch (ExecutionException e) {
             return Exceptions.throwUnchecked(e, HandlebarsOptimizedTemplate.class);
         }

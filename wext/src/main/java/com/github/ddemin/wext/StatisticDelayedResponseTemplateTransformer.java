@@ -15,8 +15,9 @@ public class StatisticDelayedResponseTemplateTransformer extends AbstractExtTemp
 
     public static final String NAME = "delayed-response-template";
 
-    private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final static Map<ResponseDefinition, ResponseRule> STORAGE_FOR_RULES = new ConcurrentHashMap<>();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Map<ResponseDefinition, ResponseRule> STORAGE_FOR_RULES = new ConcurrentHashMap<>();
+    private static final String DELAY_FIELD = "dynamic-delay";
 
     public StatisticDelayedResponseTemplateTransformer() {
         super(false);
@@ -32,7 +33,7 @@ public class StatisticDelayedResponseTemplateTransformer extends AbstractExtTemp
             Request request, ResponseDefinition responseDefinition, FileSource files, Parameters origParameters
     ) {
         final Parameters parsedParameters = uncheckedApplyTemplate(request, responseDefinition, files, origParameters);
-        final ResponseRule rule = getAndCacheRule(responseDefinition, parsedParameters.get("dynamic-delay"));
+        final ResponseRule rule = getAndCacheRule(responseDefinition, parsedParameters.get(DELAY_FIELD));
 
         try {
             final long delay = ExWiremockUtils.chooseDelayForRule(rule);

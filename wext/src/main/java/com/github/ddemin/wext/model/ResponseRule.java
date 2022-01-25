@@ -63,27 +63,4 @@ public class ResponseRule {
         return delayMax;
     }
 
-    public void setDelayMin(long delayMin) {
-        this.delayMin = delayMin;
-    }
-
-    public void setDelay50(long delay50) {
-        this.delay50 = delay50;
-    }
-
-    public void setDelay90(long delay90) {
-        this.delay90 = delay90;
-    }
-
-    public void setDelay95(long delay95) {
-        this.delay95 = delay95;
-    }
-
-    public void setDelayMax(long delayMax) {
-        this.delayMax = delayMax;
-    }
-
-    public void setParameters(Parameters parameters) {
-        this.parameters = parameters;
-    }
 }

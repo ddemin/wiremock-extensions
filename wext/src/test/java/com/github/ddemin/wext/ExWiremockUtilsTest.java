@@ -15,7 +15,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// TODO Make it nice
+// TODO Refactor
+// TODO Add tests for transformers
 class ExWiremockUtilsTest {
 
     public static final int DELAY_MIN = 10000;
@@ -24,7 +25,7 @@ class ExWiremockUtilsTest {
     public static final int DELAY_95 = 40000;
     public static final int MAX = 50000;
 
-    @Test void testDelayGeneratorWithZeroError() {
+    @Test void testDelayGeneratorWithError() {
         final ResponseRule delayRule
                 = new ResponseRule(DELAY_MIN, DELAY_50, DELAY_90, DELAY_95, MAX, new Parameters());
         final double allowedError = 0.1;
@@ -42,17 +43,11 @@ class ExWiremockUtilsTest {
         long p90 = percentile(delays, 90);
         long p95 = percentile(delays, 95);
 
-        System.out.println("Min = " + min);
-        System.out.println("Max = " + max);
-        System.out.println("P50 = " + p50);
-        System.out.println("P90 = " + p90);
-        System.out.println("P95 = " + p95);
-
         assertEquals(DELAY_MIN, min, "Min delay equal to " + DELAY_MIN);
         assertEquals(MAX, max, "Max delay equal to " + MAX);
-        assertTrue(isGreaterWithError(p50, DELAY_50, allowedError), "P50 delay is greater than " + DELAY_50);
-        assertTrue(isGreaterWithError(p90, DELAY_90, allowedError), "P90 delay is greater than " + DELAY_90);
-        assertTrue(isGreaterWithError(p95, DELAY_95, allowedError), "P95 delay is greater than " + DELAY_95);
+        assertTrue(isGreaterWithError(p50, DELAY_50, allowedError), "P50 delay is close to " + DELAY_50);
+        assertTrue(isGreaterWithError(p90, DELAY_90, allowedError), "P90 delay is close to " + DELAY_90);
+        assertTrue(isGreaterWithError(p95, DELAY_95, allowedError), "P95 delay is close to " + DELAY_95);
     }
 
     private long percentile(List<Long> latencies, int percentile) {
